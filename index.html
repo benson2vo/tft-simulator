@@ -113,6 +113,7 @@
               <button type="button" class="button button-secondary" id="add-unit-row">
                 Add unit + items
               </button>
+              <datalist id="unit-options"></datalist>
               <datalist id="item-options"></datalist>
             </div>
 
@@ -266,30 +267,11 @@
         <p>Prototype layout for a TFT outcome simulator.</p>
       </div>
     </footer>
+    <script src="champions.js"></script>
+    <script src="augments.js"></script>
+    <script src="items.js"></script>
     <script>
-      const AUGMENTS = [
-        "Jeweled Lotus",
-        "Jeweled Gauntlet",
-        "Jeweled Crest",
-        "Pandora's Items",
-        "Pandora's Bench",
-        "Golden Ticket",
-        "Tiny Titans",
-        "Metabolic Accelerator",
-        "Level Up!",
-        "Rich Get Richer",
-        "Hedge Fund",
-        "Last Stand",
-        "Knife's Edge",
-        "Component Grab Bag",
-        "Best Friends",
-        "Lifelong Learning",
-        "Celestial Blessing",
-        "Second Wind",
-        "Windfall",
-        "Afk",
-      ];
-
+      const AUGMENTS = window.AUGMENT_POOL || [];
       const augmentOptions = document.getElementById('augment-options');
       const augmentInputs = [
         document.getElementById('augment-input-1'),
@@ -436,31 +418,12 @@
         updateList(pitfalls, warnings.length ? warnings : ['No major pitfalls detected.']);
       });
 
-      const ITEM_POOL = [
-        'Blue Buff',
-        'Jeweled Gauntlet',
-        'Giant Slayer',
-        'Infinity Edge',
-        'Guinsoo\'s Rageblade',
-        'Hextech Gunblade',
-        'Rabadon\'s Deathcap',
-        'Archangel\'s Staff',
-        'Last Whisper',
-        'Ionic Spark',
-        'Sunfire Cape',
-        'Bramble Vest',
-        'Dragon\'s Claw',
-        'Warmog\'s Armor',
-        'Redemption',
-        'Protector\'s Vow',
-        'Hand of Justice',
-        'Bloodthirster',
-        'Edge of Night',
-        'Quicksilver',
-        'Spear of Shojin',
-      ];
+      const ITEM_POOL = window.ITEM_POOL || [];
+
+      const UNIT_POOL = window.CHAMPION_POOL || [];
 
       const itemOptions = document.getElementById('item-options');
+      const unitOptions = document.getElementById('unit-options');
 
       const updateItemOptions = (query) => {
         const normalized = query.trim().toLowerCase();
@@ -475,14 +438,35 @@
         });
       };
 
+      const updateUnitOptions = (query) => {
+        const normalized = query.trim().toLowerCase();
+        const matches = UNIT_POOL.filter((unit) =>
+          unit.toLowerCase().includes(normalized)
+        );
+        unitOptions.innerHTML = '';
+        matches.forEach((unit) => {
+          const option = document.createElement('option');
+          option.value = unit;
+          unitOptions.appendChild(option);
+        });
+      };
+
       updateItemOptions('');
+      updateUnitOptions('');
 
       const createUnitRow = (unitValue = '', items = []) => {
         const row = document.createElement('div');
         row.className = 'unit-items-row';
         row.innerHTML = `
           <div class="unit-col">
-            <input type="text" class="unit-input" placeholder="Key unit (e.g. Ahri 2*)" value="${unitValue}" />
+            <input
+              type="text"
+              class="unit-input"
+              list="unit-options"
+              placeholder="Key unit (e.g. Ahri 2*)"
+              value="${unitValue}"
+              autocomplete="off"
+            />
             <button type="button" class="delete-row" aria-label="Remove row">Remove</button>
           </div>
           <div class="item-col">
@@ -493,6 +477,7 @@
 
         const chips = row.querySelector('.item-chips');
         const search = row.querySelector('.item-search');
+        const unitSearch = row.querySelector('.unit-input');
         const deleteButton = row.querySelector('.delete-row');
 
         const renderChip = (item) => {
@@ -512,11 +497,15 @@
           updateItemOptions(event.target.value);
         });
 
+        unitSearch.addEventListener('input', (event) => {
+          updateUnitOptions(event.target.value);
+        });
+
         search.addEventListener('change', () => {
           const value = search.value.trim();
           if (!value) return;
-          const existing = Array.from(chips.children).map((chip) => chip.textContent);
-          if (existing.length >= 3 || existing.includes(value)) {
+          const existingCount = chips.children.length;
+          if (existingCount >= 3) {
             search.value = '';
             return;
           }
