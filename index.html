@@ -23,9 +23,10 @@
 
     <main class="container">
       <section class="grid">
-        <div class="card">
-          <h2>Input your game state</h2>
-          <form class="form">
+        <div class="column">
+          <div class="card">
+            <h2>Input your game state</h2>
+            <form class="form">
             <label>
               Current stage
               <input
@@ -150,59 +151,92 @@
               <datalist id="augment-options"></datalist>
             </label>
 
-            <button type="button" class="button" id="run-button">Run simulation</button>
-          </form>
+              <button type="button" class="button" id="run-button">Run simulation</button>
+            </form>
+          </div>
         </div>
 
-        <div class="card">
-          <h2>Projected results</h2>
-          <div class="hero-banner" aria-hidden="true">
-            <div class="hero-ring"></div>
-            <div class="hero-ring"></div>
-            <div class="hero-ring"></div>
-          </div>
-          <div class="stat-grid">
-            <div class="stat">
-              <p class="stat-label">
-                <span class="stat-icon" aria-hidden="true"></span>
-                Top 4 odds
-              </p>
-              <p class="stat-value" id="top4-odds">—</p>
+        <div class="column">
+          <div class="card" id="comp-builder">
+            <h2>Comp builder (Set 16.6)</h2>
+            <p class="subhead">
+              Add champions to see the active traits. Icons and traits are pulled
+              from the Set 16.6 champion list.
+            </p>
+
+            <div class="comp-controls">
+              <div class="comp-input">
+                <input
+                  type="text"
+                  id="comp-search"
+                  list="comp-options"
+                  placeholder="Search champion..."
+                  autocomplete="off"
+                />
+                <datalist id="comp-options"></datalist>
+                <button type="button" class="button" id="add-comp">Add champion</button>
+              </div>
+              <div class="comp-roster" id="comp-roster"></div>
             </div>
-            <div class="stat">
-              <p class="stat-label">
-                <span class="stat-icon" aria-hidden="true"></span>
-                Win odds
-              </p>
-              <p class="stat-value" id="win-odds">—</p>
-            </div>
-            <div class="stat">
-              <p class="stat-label">
-                <span class="stat-icon" aria-hidden="true"></span>
-                Expected placement
-              </p>
-              <p class="stat-value" id="placement">—</p>
+
+            <div class="traits-panel">
+              <h3>Active traits</h3>
+              <div class="traits-grid" id="traits-grid">
+                <p class="muted">Add champions to see traits.</p>
+              </div>
             </div>
           </div>
 
-          <div class="panel">
-            <h3>
-              <span class="panel-icon" aria-hidden="true"></span>
-              Suggested next actions
-            </h3>
-            <ul id="next-actions">
-              <li>Run the simulation to see recommendations.</li>
-            </ul>
-          </div>
+          <div class="card">
+            <h2>Projected results</h2>
+            <div class="hero-banner" aria-hidden="true">
+              <div class="hero-ring"></div>
+              <div class="hero-ring"></div>
+              <div class="hero-ring"></div>
+            </div>
+            <div class="stat-grid">
+              <div class="stat">
+                <p class="stat-label">
+                  <span class="stat-icon" aria-hidden="true"></span>
+                  Top 4 odds
+                </p>
+                <p class="stat-value" id="top4-odds">—</p>
+              </div>
+              <div class="stat">
+                <p class="stat-label">
+                  <span class="stat-icon" aria-hidden="true"></span>
+                  Win odds
+                </p>
+                <p class="stat-value" id="win-odds">—</p>
+              </div>
+              <div class="stat">
+                <p class="stat-label">
+                  <span class="stat-icon" aria-hidden="true"></span>
+                  Expected placement
+                </p>
+                <p class="stat-value" id="placement">—</p>
+              </div>
+            </div>
 
-          <div class="panel">
-            <h3>
-              <span class="panel-icon warning" aria-hidden="true"></span>
-              Common pitfalls
-            </h3>
-            <ul id="pitfalls">
-              <li>Run the simulation to see warnings.</li>
-            </ul>
+            <div class="panel">
+              <h3>
+                <span class="panel-icon" aria-hidden="true"></span>
+                Suggested next actions
+              </h3>
+              <ul id="next-actions">
+                <li>Run the simulation to see recommendations.</li>
+              </ul>
+            </div>
+
+            <div class="panel">
+              <h3>
+                <span class="panel-icon warning" aria-hidden="true"></span>
+                Common pitfalls
+              </h3>
+              <ul id="pitfalls">
+                <li>Run the simulation to see warnings.</li>
+              </ul>
+            </div>
           </div>
         </div>
       </section>
@@ -285,6 +319,7 @@
           outcomes and give tailored advice.
         </p>
       </section>
+
     </main>
 
     <footer class="site-footer">
@@ -293,6 +328,7 @@
       </div>
     </footer>
     <script src="champions.js"></script>
+    <script src="traits.js"></script>
     <script src="augments.js"></script>
     <script src="items.js"></script>
     <script>
@@ -450,6 +486,10 @@
       const CHAMPIONS = window.CHAMPIONS || [];
       const UNIT_POOL = window.CHAMPION_POOL || CHAMPIONS.map((c) => c.name);
       const CHAMPION_ICON_MAP = new Map(CHAMPIONS.map((c) => [c.name, c.icon]));
+      const CHAMPION_TRAITS = window.CHAMPION_TRAITS || [];
+      const CHAMPION_TRAIT_MAP = new Map(
+        CHAMPION_TRAITS.map((champ) => [champ.name, champ.traits])
+      );
 
       const itemOptions = document.getElementById('item-options');
       const unitOptions = document.getElementById('unit-options');
@@ -483,6 +523,103 @@
       updateItemOptions('');
       updateUnitOptions('');
 
+      const compOptions = document.getElementById('comp-options');
+      const compSearch = document.getElementById('comp-search');
+      const compRoster = document.getElementById('comp-roster');
+      const traitsGrid = document.getElementById('traits-grid');
+      const activeComp = [];
+
+      const updateCompOptions = (query) => {
+        const normalized = query.trim().toLowerCase();
+        const matches = UNIT_POOL.filter((unit) =>
+          unit.toLowerCase().includes(normalized)
+        );
+        compOptions.innerHTML = '';
+        matches.forEach((unit) => {
+          const option = document.createElement('option');
+          option.value = unit;
+          compOptions.appendChild(option);
+        });
+      };
+
+      const renderCompRoster = () => {
+        compRoster.innerHTML = '';
+        activeComp.forEach((unit) => {
+          const card = document.createElement('div');
+          card.className = 'comp-card';
+          const icon = CHAMPION_ICON_MAP.get(unit);
+          if (icon) {
+            const img = document.createElement('img');
+            img.src = icon;
+            img.alt = unit;
+            card.appendChild(img);
+          }
+          const label = document.createElement('span');
+          label.textContent = unit;
+          card.appendChild(label);
+          const remove = document.createElement('button');
+          remove.type = 'button';
+          remove.textContent = 'Remove';
+          remove.addEventListener('click', () => {
+            const idx = activeComp.indexOf(unit);
+            if (idx >= 0) activeComp.splice(idx, 1);
+            renderCompRoster();
+            renderTraits();
+          });
+          card.appendChild(remove);
+          compRoster.appendChild(card);
+        });
+      };
+
+      const renderTraits = () => {
+        const traitCounts = new Map();
+        const traitIcons = new Map();
+        activeComp.forEach((unit) => {
+          const traits = CHAMPION_TRAIT_MAP.get(unit) || [];
+          traits.forEach((trait) => {
+            traitCounts.set(trait.name, (traitCounts.get(trait.name) || 0) + 1);
+            traitIcons.set(trait.name, trait.icon);
+          });
+        });
+
+        traitsGrid.innerHTML = '';
+        if (traitCounts.size === 0) {
+          traitsGrid.innerHTML = '<p class=\"muted\">Add champions to see traits.</p>';
+          return;
+        }
+
+        Array.from(traitCounts.entries()).forEach(([name, count]) => {
+          const trait = document.createElement('div');
+          trait.className = 'trait-chip';
+          const icon = traitIcons.get(name);
+          if (icon) {
+            const img = document.createElement('img');
+            img.src = icon;
+            img.alt = name;
+            trait.appendChild(img);
+          }
+          const label = document.createElement('span');
+          label.textContent = `${name} (${count})`;
+          trait.appendChild(label);
+          traitsGrid.appendChild(trait);
+        });
+      };
+
+      document.getElementById('add-comp').addEventListener('click', () => {
+        const unit = compSearch.value.trim();
+        if (!unit || !UNIT_POOL.includes(unit)) return;
+        activeComp.push(unit);
+        compSearch.value = '';
+        renderCompRoster();
+        renderTraits();
+      });
+
+      compSearch.addEventListener('input', (event) => {
+        updateCompOptions(event.target.value);
+      });
+
+      updateCompOptions('');
+
       const createUnitRow = (unitValue = '', items = []) => {
         const row = document.createElement('div');
         row.className = 'unit-items-row';
@@ -490,14 +627,19 @@
           <div class="unit-col">
             <div class="unit-input-row">
               <img class="unit-avatar" alt="" />
-            <input
-              type="text"
-              class="unit-input"
-              list="unit-options"
-              placeholder="Key unit (e.g. Ahri 2*)"
-              value="${unitValue}"
-              autocomplete="off"
-            />
+              <input
+                type="text"
+                class="unit-input"
+                list="unit-options"
+                placeholder="Key unit (e.g. Ahri)"
+                value="${unitValue}"
+                autocomplete="off"
+              />
+              <select class="unit-stars" aria-label="Star level">
+                <option value="1">1★</option>
+                <option value="2">2★</option>
+                <option value="3">3★</option>
+              </select>
             </div>
             <button type="button" class="delete-row" aria-label="Remove row">Remove</button>
           </div>
