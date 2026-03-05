@@ -75,6 +75,12 @@ label {
   color: var(--muted);
 }
 
+.field-label {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+
 input,
 select {
   background: #0f131b;
@@ -98,6 +104,23 @@ textarea {
   gap: 8px;
 }
 
+.unit-items-list {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.unit-items-row {
+  display: grid;
+  gap: 10px;
+}
+
+@media (min-width: 720px) {
+  .unit-items-row {
+    grid-template-columns: 1fr 1.2fr;
+  }
+}
+
 .button {
   background: var(--accent);
   border: none;
@@ -106,6 +129,11 @@ textarea {
   border-radius: 10px;
   font-weight: 600;
   cursor: pointer;
+}
+
+.button.button-secondary {
+  background: #222a3a;
+  border: 1px solid var(--border);
 }
 
 .stat-grid {
@@ -139,6 +167,43 @@ textarea {
 
 #advanced-panel {
   margin-top: 16px;
+}
+
+.snapshot-block {
+  gap: 10px;
+}
+
+.snapshot-controls {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.file-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: #0f131b;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.file-button input {
+  display: none;
+}
+
+.snapshot-preview {
+  display: none;
+  max-width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.snapshot-preview.is-visible {
+  display: block;
 }
 
 .site-footer {

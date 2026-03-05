@@ -81,6 +81,17 @@
               <input id="hp-input" type="number" min="1" max="100" placeholder="e.g. 18" />
             </label>
 
+            <div class="field-row">
+              <label>
+                Players alive
+                <input id="alive-input" type="number" min="1" max="8" placeholder="e.g. 4" />
+              </label>
+              <label>
+                Current placement
+                <input id="placement-input" type="number" min="1" max="8" placeholder="e.g. 2" />
+              </label>
+            </div>
+
             <label>
               Streak
               <select id="streak-select">
@@ -96,15 +107,38 @@
               <input id="comp-input" type="text" placeholder="e.g. Invoker + Ionia (S tier)" />
             </label>
 
-            <label>
-              Key units
-              <input id="units-input" type="text" placeholder="e.g. Ahri 2*, Shen 1*" />
-            </label>
-
-            <label>
-              Key items
-              <input id="items-input" type="text" placeholder="e.g. Blue Buff, JG, Giant Slayer" />
-            </label>
+            <div>
+              <p class="field-label">Key units + items</p>
+              <div id="unit-items-list" class="unit-items-list">
+                <div class="unit-items-row">
+                  <input
+                    type="text"
+                    class="unit-input"
+                    placeholder="Key unit (e.g. Ahri 2*)"
+                  />
+                  <input
+                    type="text"
+                    class="items-input"
+                    placeholder="Items (e.g. Blue Buff, JG, GS)"
+                  />
+                </div>
+                <div class="unit-items-row">
+                  <input
+                    type="text"
+                    class="unit-input"
+                    placeholder="Key unit (e.g. Shen 1*)"
+                  />
+                  <input
+                    type="text"
+                    class="items-input"
+                    placeholder="Items (e.g. Bramble, DClaw)"
+                  />
+                </div>
+              </div>
+              <button type="button" class="button button-secondary" id="add-unit-row">
+                Add unit + items
+              </button>
+            </div>
 
             <label>
               Augments (up to 3)
@@ -177,25 +211,61 @@
           Add enemy snapshots to refine your projection. This MVP stores text
           only; later this can become structured inputs.
         </p>
+        <button type="button" class="button" id="load-example">
+          Load Cammy 5-5 example
+        </button>
+        <p class="subhead">
+          Example outcome: level 9 (22/68 XP), eliminated at 6-3 in 2nd place.
+        </p>
         <div class="form">
-          <label>
+          <label class="snapshot-block">
             Enemy 1 snapshot
+            <div class="snapshot-controls">
+              <button type="button" class="button button-secondary paste-button" data-target="enemy-1">
+                Paste snapshot
+              </button>
+              <label class="file-button">
+                Upload
+                <input type="file" accept="image/*" data-target="enemy-1" />
+              </label>
+            </div>
+            <img class="snapshot-preview" id="enemy-1-preview" alt="" />
             <textarea
               id="enemy-1"
               rows="3"
               placeholder="Units, levels, champs, estimated gold..."
             ></textarea>
           </label>
-          <label>
+          <label class="snapshot-block">
             Enemy 2 snapshot
+            <div class="snapshot-controls">
+              <button type="button" class="button button-secondary paste-button" data-target="enemy-2">
+                Paste snapshot
+              </button>
+              <label class="file-button">
+                Upload
+                <input type="file" accept="image/*" data-target="enemy-2" />
+              </label>
+            </div>
+            <img class="snapshot-preview" id="enemy-2-preview" alt="" />
             <textarea
               id="enemy-2"
               rows="3"
               placeholder="Units, levels, champs, estimated gold..."
             ></textarea>
           </label>
-          <label>
+          <label class="snapshot-block">
             Enemy 3 snapshot
+            <div class="snapshot-controls">
+              <button type="button" class="button button-secondary paste-button" data-target="enemy-3">
+                Paste snapshot
+              </button>
+              <label class="file-button">
+                Upload
+                <input type="file" accept="image/*" data-target="enemy-3" />
+              </label>
+            </div>
+            <img class="snapshot-preview" id="enemy-3-preview" alt="" />
             <textarea
               id="enemy-3"
               rows="3"
@@ -293,6 +363,9 @@
         const level = Number(document.getElementById('level-input').value || 0);
         const gold = Number(document.getElementById('gold-input').value || 0);
         const hp = Number(document.getElementById('hp-input').value || 0);
+        const alive = Number(document.getElementById('alive-input').value || 0);
+        const currentPlace = Number(document.getElementById('placement-input').value || 0);
+        const xp = Number(document.getElementById('xp-input').value || 0);
         const comp = document.getElementById('comp-input').value.toLowerCase();
         const streak = document.getElementById('streak-select').value;
 
@@ -329,6 +402,25 @@
           expectedPlace -= 0.5;
         }
 
+        if (stage === '5-5' && level >= 9) {
+          top4 += 8;
+          win += 6;
+          expectedPlace -= 0.6;
+        }
+
+        if (xp >= 20 && level >= 9) {
+          top4 += 2;
+        }
+
+        if (alive > 0 && currentPlace > 0) {
+          if (currentPlace <= Math.ceil(alive / 2)) {
+            top4 += 4;
+            expectedPlace -= 0.3;
+          } else {
+            expectedPlace += 0.4;
+          }
+        }
+
         top4Odds.textContent = `${Math.max(5, Math.min(95, Math.round(top4)))}%`;
         winOdds.textContent = `${Math.max(1, Math.min(60, Math.round(win)))}%`;
         placement.textContent = `${expectedPlace.toFixed(1)}`;
@@ -360,8 +452,98 @@
           actions.push('Consider leveling soon if your board is stable.');
         }
 
+        if (alive > 0) {
+          actions.push(`Track remaining ${alive} players and adjust scouting priority.`);
+        }
+
         updateList(nextActions, actions);
         updateList(pitfalls, warnings.length ? warnings : ['No major pitfalls detected.']);
+      });
+
+      document.getElementById('load-example').addEventListener('click', () => {
+        document.getElementById('stage-input').value = '5-5';
+        document.getElementById('level-input').value = '9';
+        document.getElementById('xp-input').value = '22';
+        document.getElementById('gold-input').value = '';
+        document.getElementById('hp-input').value = '';
+        document.getElementById('streak-select').value = 'Mixed (win/loss)';
+        document.getElementById('comp-input').value =
+          'Freljord 3, Shurima 2, Warden 2, Bruiser 2, Disruptor 2, Invoker 2, Piltover 2, Emperor, Rune Mage';
+        const unitRows = document.querySelectorAll('.unit-items-row');
+        if (unitRows[0]) {
+          unitRows[0].querySelector('.unit-input').value = 'Primary carry (4-cost 3*)';
+          unitRows[0].querySelector('.items-input').value =
+            'Carry items on main DPS (crit + mana + damage)';
+        }
+        if (unitRows[1]) {
+          unitRows[1].querySelector('.unit-input').value = 'Main tank';
+          unitRows[1].querySelector('.items-input').value =
+            'Defensive items (armor + MR + sustain)';
+        }
+        document.getElementById('augment-input-1').value = 'Jeweled Lotus';
+        document.getElementById('augment-input-2').value = 'Pandora\'s Items';
+        document.getElementById('augment-input-3').value = '';
+
+        document.getElementById('enemy-1').value =
+          'Stage 5-5 opponent A: Demacia 6, Arcanist 2, Defender 2, Invoker 2, Chronokeeper, Harvester, Heroic, Soulbound.';
+        document.getElementById('enemy-2').value =
+          'Stage 5-5 opponent B: Longshot 4, Zaun 4, Demacia 3, Quickstriker 2, Defender 2, Piltover 2, Yordle 2, Blacksmith, Rune Mage.';
+        document.getElementById('enemy-3').value =
+          'Cammy comp snapshot: Emperor, Rune Mage, Freljord 3, Shurima 2, Warden 2, Bruiser 2, Disruptor 2, Invoker 2, Piltover 2.';
+      });
+
+      const snapshotButtons = document.querySelectorAll('.paste-button');
+      const snapshotInputs = document.querySelectorAll('.file-button input');
+      let activeSnapshotTarget = null;
+
+      const setPreview = (targetId, file) => {
+        const preview = document.getElementById(`${targetId}-preview`);
+        const url = URL.createObjectURL(file);
+        preview.src = url;
+        preview.alt = `Snapshot for ${targetId}`;
+        preview.classList.add('is-visible');
+      };
+
+      snapshotButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          activeSnapshotTarget = button.dataset.target;
+          button.textContent = 'Paste now (Ctrl+V)';
+          setTimeout(() => {
+            button.textContent = 'Paste snapshot';
+          }, 3000);
+        });
+      });
+
+      snapshotInputs.forEach((input) => {
+        input.addEventListener('change', (event) => {
+          const file = event.target.files[0];
+          if (!file) return;
+          setPreview(event.target.dataset.target, file);
+        });
+      });
+
+      document.addEventListener('paste', (event) => {
+        if (!activeSnapshotTarget) return;
+        const items = event.clipboardData.items;
+        for (const item of items) {
+          if (item.type.startsWith('image/')) {
+            const file = item.getAsFile();
+            setPreview(activeSnapshotTarget, file);
+            activeSnapshotTarget = null;
+            break;
+          }
+        }
+      });
+
+      document.getElementById('add-unit-row').addEventListener('click', () => {
+        const list = document.getElementById('unit-items-list');
+        const row = document.createElement('div');
+        row.className = 'unit-items-row';
+        row.innerHTML = `
+          <input type="text" class="unit-input" placeholder="Key unit (e.g. Gwen 2*)" />
+          <input type="text" class="items-input" placeholder="Items (e.g. BT, Titans, HoJ)" />
+        `;
+        list.appendChild(row);
       });
     </script>
   </body>
