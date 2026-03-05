@@ -9,10 +9,15 @@
   <body>
     <header class="site-header">
       <div class="container">
-        <h1>TFT Outcome Simulator</h1>
-        <p class="subhead">
+        <div class="logo-row">
+          <div class="logo-mark" aria-hidden="true"></div>
+          <div>
+            <h1>TFT Outcome Simulator</h1>
+            <p class="subhead">
           A simple MVP to explore match outcomes and learn better decisions.
-        </p>
+            </p>
+          </div>
+        </div>
       </div>
     </header>
 
@@ -151,30 +156,50 @@
 
         <div class="card">
           <h2>Projected results</h2>
+          <div class="hero-banner" aria-hidden="true">
+            <div class="hero-ring"></div>
+            <div class="hero-ring"></div>
+            <div class="hero-ring"></div>
+          </div>
           <div class="stat-grid">
             <div class="stat">
-              <p class="stat-label">Top 4 odds</p>
+              <p class="stat-label">
+                <span class="stat-icon" aria-hidden="true"></span>
+                Top 4 odds
+              </p>
               <p class="stat-value" id="top4-odds">—</p>
             </div>
             <div class="stat">
-              <p class="stat-label">Win odds</p>
+              <p class="stat-label">
+                <span class="stat-icon" aria-hidden="true"></span>
+                Win odds
+              </p>
               <p class="stat-value" id="win-odds">—</p>
             </div>
             <div class="stat">
-              <p class="stat-label">Expected placement</p>
+              <p class="stat-label">
+                <span class="stat-icon" aria-hidden="true"></span>
+                Expected placement
+              </p>
               <p class="stat-value" id="placement">—</p>
             </div>
           </div>
 
           <div class="panel">
-            <h3>Suggested next actions</h3>
+            <h3>
+              <span class="panel-icon" aria-hidden="true"></span>
+              Suggested next actions
+            </h3>
             <ul id="next-actions">
               <li>Run the simulation to see recommendations.</li>
             </ul>
           </div>
 
           <div class="panel">
-            <h3>Common pitfalls</h3>
+            <h3>
+              <span class="panel-icon warning" aria-hidden="true"></span>
+              Common pitfalls
+            </h3>
             <ul id="pitfalls">
               <li>Run the simulation to see warnings.</li>
             </ul>
@@ -418,9 +443,13 @@
         updateList(pitfalls, warnings.length ? warnings : ['No major pitfalls detected.']);
       });
 
-      const ITEM_POOL = window.ITEM_POOL || [];
+      const ITEMS = window.ITEMS || [];
+      const ITEM_POOL = window.ITEM_POOL || ITEMS.map((item) => item.name);
+      const ITEM_ICON_MAP = new Map(ITEMS.map((item) => [item.name, item.icon]));
 
-      const UNIT_POOL = window.CHAMPION_POOL || [];
+      const CHAMPIONS = window.CHAMPIONS || [];
+      const UNIT_POOL = window.CHAMPION_POOL || CHAMPIONS.map((c) => c.name);
+      const CHAMPION_ICON_MAP = new Map(CHAMPIONS.map((c) => [c.name, c.icon]));
 
       const itemOptions = document.getElementById('item-options');
       const unitOptions = document.getElementById('unit-options');
@@ -459,6 +488,8 @@
         row.className = 'unit-items-row';
         row.innerHTML = `
           <div class="unit-col">
+            <div class="unit-input-row">
+              <img class="unit-avatar" alt="" />
             <input
               type="text"
               class="unit-input"
@@ -467,6 +498,7 @@
               value="${unitValue}"
               autocomplete="off"
             />
+            </div>
             <button type="button" class="delete-row" aria-label="Remove row">Remove</button>
           </div>
           <div class="item-col">
@@ -479,11 +511,23 @@
         const search = row.querySelector('.item-search');
         const unitSearch = row.querySelector('.unit-input');
         const deleteButton = row.querySelector('.delete-row');
+        const unitAvatar = row.querySelector('.unit-avatar');
 
         const renderChip = (item) => {
           const chip = document.createElement('span');
           chip.className = 'item-chip';
-          chip.textContent = item;
+          const iconUrl = ITEM_ICON_MAP.get(item);
+          if (iconUrl) {
+            const img = document.createElement('img');
+            img.src = iconUrl;
+            img.alt = item;
+            img.width = 24;
+            img.height = 24;
+            chip.appendChild(img);
+          }
+          const label = document.createElement('span');
+          label.textContent = item;
+          chip.appendChild(label);
           chip.title = 'Click to remove';
           chip.addEventListener('click', () => {
             chip.remove();
@@ -499,6 +543,16 @@
 
         unitSearch.addEventListener('input', (event) => {
           updateUnitOptions(event.target.value);
+        });
+
+        unitSearch.addEventListener('change', () => {
+          const name = unitSearch.value.trim();
+          const icon = CHAMPION_ICON_MAP.get(name);
+          if (icon) {
+            unitAvatar.src = icon;
+            unitAvatar.alt = name;
+            unitAvatar.classList.add('is-visible');
+          }
         });
 
         search.addEventListener('change', () => {
