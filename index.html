@@ -574,7 +574,8 @@
       const renderTraits = () => {
         const traitCounts = new Map();
         const traitIcons = new Map();
-        activeComp.forEach((unit) => {
+        const uniqueUnits = new Set(activeComp);
+        uniqueUnits.forEach((unit) => {
           const traits = CHAMPION_TRAIT_MAP.get(unit) || [];
           traits.forEach((trait) => {
             traitCounts.set(trait.name, (traitCounts.get(trait.name) || 0) + 1);
