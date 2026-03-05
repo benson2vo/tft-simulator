@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TFT Outcome Simulator — MVP</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container">
+        <h1>TFT Outcome Simulator</h1>
+        <p class="subhead">
+          A simple MVP to explore match outcomes and learn better decisions.
+        </p>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="grid">
+        <div class="card">
+          <h2>Input your game state</h2>
+          <form class="form">
+            <label>
+              Current stage
+              <input
+                id="stage-input"
+                type="text"
+                list="stage-options"
+                placeholder="Type stage (e.g. 5-2)"
+                autocomplete="off"
+              />
+              <datalist id="stage-options">
+                <option value="2-1"></option>
+                <option value="2-2"></option>
+                <option value="2-3"></option>
+                <option value="2-5"></option>
+                <option value="3-1"></option>
+                <option value="3-2"></option>
+                <option value="3-3"></option>
+                <option value="3-5"></option>
+                <option value="4-1"></option>
+                <option value="4-2"></option>
+                <option value="4-3"></option>
+                <option value="4-5"></option>
+                <option value="5-1"></option>
+                <option value="5-2"></option>
+                <option value="5-3"></option>
+                <option value="5-5"></option>
+                <option value="6-1"></option>
+                <option value="6-2"></option>
+                <option value="6-3"></option>
+                <option value="6-5"></option>
+              </datalist>
+            </label>
+
+            <div class="field-row">
+              <label>
+                Level
+                <input
+                  id="level-input"
+                  type="number"
+                  min="1"
+                  max="10"
+                  placeholder="e.g. 7"
+                />
+              </label>
+              <label>
+                Current XP (partial)
+                <input id="xp-input" type="number" min="0" placeholder="e.g. 6" />
+              </label>
+            </div>
+
+            <label>
+              Gold
+              <input id="gold-input" type="number" min="0" placeholder="e.g. 32" />
+            </label>
+
+            <label>
+              Current HP
+              <input id="hp-input" type="number" min="1" max="100" placeholder="e.g. 18" />
+            </label>
+
+            <label>
+              Streak
+              <select id="streak-select">
+                <option>None</option>
+                <option>Win streak (3+)</option>
+                <option>Mixed (win/loss)</option>
+                <option>Loss streak (3+)</option>
+              </select>
+            </label>
+
+            <label>
+              Current comp
+              <input id="comp-input" type="text" placeholder="e.g. Invoker + Ionia (S tier)" />
+            </label>
+
+            <label>
+              Key units
+              <input id="units-input" type="text" placeholder="e.g. Ahri 2*, Shen 1*" />
+            </label>
+
+            <label>
+              Key items
+              <input id="items-input" type="text" placeholder="e.g. Blue Buff, JG, Giant Slayer" />
+            </label>
+
+            <label>
+              Augments (up to 3)
+              <div class="augment-grid">
+                <input
+                  id="augment-input-1"
+                  type="text"
+                  list="augment-options"
+                  placeholder="Augment 1"
+                  autocomplete="off"
+                />
+                <input
+                  id="augment-input-2"
+                  type="text"
+                  list="augment-options"
+                  placeholder="Augment 2"
+                  autocomplete="off"
+                />
+                <input
+                  id="augment-input-3"
+                  type="text"
+                  list="augment-options"
+                  placeholder="Augment 3"
+                  autocomplete="off"
+                />
+              </div>
+              <datalist id="augment-options"></datalist>
+            </label>
+
+            <button type="button" class="button" id="run-button">Run simulation</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <h2>Projected results</h2>
+          <div class="stat-grid">
+            <div class="stat">
+              <p class="stat-label">Top 4 odds</p>
+              <p class="stat-value" id="top4-odds">—</p>
+            </div>
+            <div class="stat">
+              <p class="stat-label">Win odds</p>
+              <p class="stat-value" id="win-odds">—</p>
+            </div>
+            <div class="stat">
+              <p class="stat-label">Expected placement</p>
+              <p class="stat-value" id="placement">—</p>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h3>Suggested next actions</h3>
+            <ul id="next-actions">
+              <li>Run the simulation to see recommendations.</li>
+            </ul>
+          </div>
+
+          <div class="panel">
+            <h3>Common pitfalls</h3>
+            <ul id="pitfalls">
+              <li>Run the simulation to see warnings.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="card" id="advanced-panel">
+        <h2>Advanced scouting (optional)</h2>
+        <p>
+          Add enemy snapshots to refine your projection. This MVP stores text
+          only; later this can become structured inputs.
+        </p>
+        <div class="form">
+          <label>
+            Enemy 1 snapshot
+            <textarea
+              id="enemy-1"
+              rows="3"
+              placeholder="Units, levels, champs, estimated gold..."
+            ></textarea>
+          </label>
+          <label>
+            Enemy 2 snapshot
+            <textarea
+              id="enemy-2"
+              rows="3"
+              placeholder="Units, levels, champs, estimated gold..."
+            ></textarea>
+          </label>
+          <label>
+            Enemy 3 snapshot
+            <textarea
+              id="enemy-3"
+              rows="3"
+              placeholder="Units, levels, champs, estimated gold..."
+            ></textarea>
+          </label>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>How it works (MVP)</h2>
+        <p>
+          This demo page is a static layout. Later, the simulator will model
+          lobby strength, shop odds, item value, and matchup data to estimate
+          outcomes and give tailored advice.
+        </p>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <p>Prototype layout for a TFT outcome simulator.</p>
+      </div>
+    </footer>
+    <script>
+      const AUGMENTS = [
+        "Jeweled Lotus",
+        "Jeweled Gauntlet",
+        "Jeweled Crest",
+        "Pandora's Items",
+        "Pandora's Bench",
+        "Golden Ticket",
+        "Tiny Titans",
+        "Metabolic Accelerator",
+        "Level Up!",
+        "Rich Get Richer",
+        "Hedge Fund",
+        "Last Stand",
+        "Knife's Edge",
+        "Component Grab Bag",
+        "Best Friends",
+        "Lifelong Learning",
+        "Celestial Blessing",
+        "Second Wind",
+        "Windfall",
+        "Afk",
+      ];
+
+      const augmentOptions = document.getElementById('augment-options');
+      const augmentInputs = [
+        document.getElementById('augment-input-1'),
+        document.getElementById('augment-input-2'),
+        document.getElementById('augment-input-3'),
+      ];
+
+      const updateAugmentOptions = (query) => {
+        const normalized = query.trim().toLowerCase();
+        const matches = AUGMENTS.filter((augment) =>
+          augment.toLowerCase().includes(normalized)
+        );
+
+        augmentOptions.innerHTML = '';
+        matches.forEach((augment) => {
+          const option = document.createElement('option');
+          option.value = augment;
+          augmentOptions.appendChild(option);
+        });
+      };
+
+      augmentInputs.forEach((input) => {
+        input.addEventListener('input', (event) => {
+          updateAugmentOptions(event.target.value);
+        });
+      });
+      updateAugmentOptions('');
+
+      const runButton = document.getElementById('run-button');
+      const top4Odds = document.getElementById('top4-odds');
+      const winOdds = document.getElementById('win-odds');
+      const placement = document.getElementById('placement');
+      const nextActions = document.getElementById('next-actions');
+      const pitfalls = document.getElementById('pitfalls');
+
+      const updateList = (element, items) => {
+        element.innerHTML = '';
+        items.forEach((item) => {
+          const li = document.createElement('li');
+          li.textContent = item;
+          element.appendChild(li);
+        });
+      };
+
+      runButton.addEventListener('click', () => {
+        const stage = document.getElementById('stage-input').value;
+        const level = Number(document.getElementById('level-input').value || 0);
+        const gold = Number(document.getElementById('gold-input').value || 0);
+        const hp = Number(document.getElementById('hp-input').value || 0);
+        const comp = document.getElementById('comp-input').value.toLowerCase();
+        const streak = document.getElementById('streak-select').value;
+
+        let top4 = 55;
+        let win = 12;
+        let expectedPlace = 4.5;
+
+        if (comp.includes('s tier')) {
+          top4 += 10;
+          win += 8;
+          expectedPlace -= 0.7;
+        }
+
+        if (hp <= 30) {
+          top4 -= 8;
+          expectedPlace += 0.6;
+        }
+
+        if (gold < 20) {
+          expectedPlace += 0.4;
+        }
+
+        if (streak.includes('Win')) {
+          top4 += 5;
+          win += 3;
+        } else if (streak.includes('Loss')) {
+          top4 -= 4;
+          expectedPlace += 0.3;
+        }
+
+        if (stage === '5-2' && level >= 7 && gold <= 15 && comp.includes('s tier')) {
+          top4 += 6;
+          win += 4;
+          expectedPlace -= 0.5;
+        }
+
+        top4Odds.textContent = `${Math.max(5, Math.min(95, Math.round(top4)))}%`;
+        winOdds.textContent = `${Math.max(1, Math.min(60, Math.round(win)))}%`;
+        placement.textContent = `${expectedPlace.toFixed(1)}`;
+
+        const actions = [];
+        const warnings = [];
+
+        if (hp <= 30) {
+          actions.push('Stabilize now: roll to strengthen board and avoid a quick 8th.');
+          warnings.push('Holding gold too long at low HP can eliminate you.');
+        } else {
+          actions.push('Scout lobby and plan your next pivot or item slam.');
+        }
+
+        if (gold < 20) {
+          actions.push('Spend to hit key upgrades instead of saving for interest.');
+          warnings.push('Greeding for interest at low gold can stall upgrades.');
+        } else {
+          actions.push('Maintain 20–30g while looking for 2-star upgrades.');
+        }
+
+        if (comp.includes('s tier')) {
+          actions.push('Protect your carry with frontline upgrades and positioning.');
+        } else {
+          warnings.push('Forcing a weak comp can cap your placement.');
+        }
+
+        if (stage.startsWith('5') && level < 8) {
+          actions.push('Consider leveling soon if your board is stable.');
+        }
+
+        updateList(nextActions, actions);
+        updateList(pitfalls, warnings.length ? warnings : ['No major pitfalls detected.']);
+      });
+    </script>
+  </body>
+</html>

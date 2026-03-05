@@ -1,0 +1,158 @@
+:root {
+  --bg: #0f1115;
+  --surface: #161a22;
+  --text: #f2f4f8;
+  --muted: #a3adbf;
+  --accent: #5b8cff;
+  --border: #2a3140;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0 0 12px;
+}
+
+p {
+  margin: 0 0 12px;
+}
+
+.container {
+  width: min(1100px, 92vw);
+  margin: 0 auto;
+}
+
+.site-header {
+  padding: 32px 0 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.subhead {
+  color: var(--muted);
+  max-width: 60ch;
+}
+
+.grid {
+  display: grid;
+  gap: 24px;
+  margin: 32px 0;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.form {
+  display: grid;
+  gap: 14px;
+}
+
+.field-row {
+  display: grid;
+  gap: 12px;
+}
+
+label {
+  display: grid;
+  gap: 6px;
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+
+input,
+select {
+  background: #0f131b;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 10px 12px;
+  border-radius: 10px;
+}
+
+textarea {
+  background: #0f131b;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 10px 12px;
+  border-radius: 10px;
+  resize: vertical;
+}
+
+.augment-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.button {
+  background: var(--accent);
+  border: none;
+  color: #fff;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.stat-grid {
+  display: grid;
+  gap: 12px;
+  margin: 16px 0 24px;
+}
+
+.stat {
+  background: #0f131b;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 16px;
+}
+
+.stat-label {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.stat-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.panel {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+#advanced-panel {
+  margin-top: 16px;
+}
+
+.site-footer {
+  padding: 24px 0 40px;
+  color: var(--muted);
+  text-align: center;
+}
+
+@media (min-width: 880px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .field-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
