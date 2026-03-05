@@ -121,6 +121,47 @@ textarea {
   }
 }
 
+.unit-col {
+  display: grid;
+  gap: 8px;
+}
+
+.delete-row {
+  align-self: start;
+  background: transparent;
+  border: 1px dashed var(--border);
+  color: var(--muted);
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.item-col {
+  display: grid;
+  gap: 8px;
+}
+
+.item-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 28px;
+}
+
+.item-chip {
+  background: #0f131b;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.item-search {
+  width: 100%;
+}
+
 .button {
   background: var(--accent);
   border: none;

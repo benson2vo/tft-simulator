@@ -109,35 +109,11 @@
 
             <div>
               <p class="field-label">Key units + items</p>
-              <div id="unit-items-list" class="unit-items-list">
-                <div class="unit-items-row">
-                  <input
-                    type="text"
-                    class="unit-input"
-                    placeholder="Key unit (e.g. Ahri 2*)"
-                  />
-                  <input
-                    type="text"
-                    class="items-input"
-                    placeholder="Items (e.g. Blue Buff, JG, GS)"
-                  />
-                </div>
-                <div class="unit-items-row">
-                  <input
-                    type="text"
-                    class="unit-input"
-                    placeholder="Key unit (e.g. Shen 1*)"
-                  />
-                  <input
-                    type="text"
-                    class="items-input"
-                    placeholder="Items (e.g. Bramble, DClaw)"
-                  />
-                </div>
-              </div>
+              <div id="unit-items-list" class="unit-items-list"></div>
               <button type="button" class="button button-secondary" id="add-unit-row">
                 Add unit + items
               </button>
+              <datalist id="item-options"></datalist>
             </div>
 
             <label>
@@ -460,6 +436,109 @@
         updateList(pitfalls, warnings.length ? warnings : ['No major pitfalls detected.']);
       });
 
+      const ITEM_POOL = [
+        'Blue Buff',
+        'Jeweled Gauntlet',
+        'Giant Slayer',
+        'Infinity Edge',
+        'Guinsoo\'s Rageblade',
+        'Hextech Gunblade',
+        'Rabadon\'s Deathcap',
+        'Archangel\'s Staff',
+        'Last Whisper',
+        'Ionic Spark',
+        'Sunfire Cape',
+        'Bramble Vest',
+        'Dragon\'s Claw',
+        'Warmog\'s Armor',
+        'Redemption',
+        'Protector\'s Vow',
+        'Hand of Justice',
+        'Bloodthirster',
+        'Edge of Night',
+        'Quicksilver',
+        'Spear of Shojin',
+      ];
+
+      const itemOptions = document.getElementById('item-options');
+
+      const updateItemOptions = (query) => {
+        const normalized = query.trim().toLowerCase();
+        const matches = ITEM_POOL.filter((item) =>
+          item.toLowerCase().includes(normalized)
+        );
+        itemOptions.innerHTML = '';
+        matches.forEach((item) => {
+          const option = document.createElement('option');
+          option.value = item;
+          itemOptions.appendChild(option);
+        });
+      };
+
+      updateItemOptions('');
+
+      const createUnitRow = (unitValue = '', items = []) => {
+        const row = document.createElement('div');
+        row.className = 'unit-items-row';
+        row.innerHTML = `
+          <div class="unit-col">
+            <input type="text" class="unit-input" placeholder="Key unit (e.g. Ahri 2*)" value="${unitValue}" />
+            <button type="button" class="delete-row" aria-label="Remove row">Remove</button>
+          </div>
+          <div class="item-col">
+            <div class="item-chips"></div>
+            <input type="text" class="item-search" list="item-options" placeholder="Search item..." autocomplete="off" />
+          </div>
+        `;
+
+        const chips = row.querySelector('.item-chips');
+        const search = row.querySelector('.item-search');
+        const deleteButton = row.querySelector('.delete-row');
+
+        const renderChip = (item) => {
+          const chip = document.createElement('span');
+          chip.className = 'item-chip';
+          chip.textContent = item;
+          chip.title = 'Click to remove';
+          chip.addEventListener('click', () => {
+            chip.remove();
+          });
+          chips.appendChild(chip);
+        };
+
+        items.forEach((item) => renderChip(item));
+
+        search.addEventListener('input', (event) => {
+          updateItemOptions(event.target.value);
+        });
+
+        search.addEventListener('change', () => {
+          const value = search.value.trim();
+          if (!value) return;
+          const existing = Array.from(chips.children).map((chip) => chip.textContent);
+          if (existing.length >= 3 || existing.includes(value)) {
+            search.value = '';
+            return;
+          }
+          renderChip(value);
+          search.value = '';
+        });
+
+        deleteButton.addEventListener('click', () => {
+          row.remove();
+        });
+
+        return row;
+      };
+
+      const unitList = document.getElementById('unit-items-list');
+      unitList.appendChild(createUnitRow());
+      unitList.appendChild(createUnitRow());
+
+      document.getElementById('add-unit-row').addEventListener('click', () => {
+        unitList.appendChild(createUnitRow());
+      });
+
       document.getElementById('load-example').addEventListener('click', () => {
         document.getElementById('stage-input').value = '5-5';
         document.getElementById('level-input').value = '9';
@@ -469,17 +548,17 @@
         document.getElementById('streak-select').value = 'Mixed (win/loss)';
         document.getElementById('comp-input').value =
           'Freljord 3, Shurima 2, Warden 2, Bruiser 2, Disruptor 2, Invoker 2, Piltover 2, Emperor, Rune Mage';
-        const unitRows = document.querySelectorAll('.unit-items-row');
-        if (unitRows[0]) {
-          unitRows[0].querySelector('.unit-input').value = 'Primary carry (4-cost 3*)';
-          unitRows[0].querySelector('.items-input').value =
-            'Carry items on main DPS (crit + mana + damage)';
-        }
-        if (unitRows[1]) {
-          unitRows[1].querySelector('.unit-input').value = 'Main tank';
-          unitRows[1].querySelector('.items-input').value =
-            'Defensive items (armor + MR + sustain)';
-        }
+        unitList.innerHTML = '';
+        unitList.appendChild(
+          createUnitRow('Primary carry (4-cost 3*)', [
+            'Blue Buff',
+            'Jeweled Gauntlet',
+            'Giant Slayer',
+          ])
+        );
+        unitList.appendChild(
+          createUnitRow('Main tank', ['Bramble Vest', 'Dragon\'s Claw', 'Warmog\'s Armor'])
+        );
         document.getElementById('augment-input-1').value = 'Jeweled Lotus';
         document.getElementById('augment-input-2').value = 'Pandora\'s Items';
         document.getElementById('augment-input-3').value = '';
