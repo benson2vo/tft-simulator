@@ -614,16 +614,6 @@
         }
       });
 
-      document.getElementById('add-unit-row').addEventListener('click', () => {
-        const list = document.getElementById('unit-items-list');
-        const row = document.createElement('div');
-        row.className = 'unit-items-row';
-        row.innerHTML = `
-          <input type="text" class="unit-input" placeholder="Key unit (e.g. Gwen 2*)" />
-          <input type="text" class="items-input" placeholder="Items (e.g. BT, Titans, HoJ)" />
-        `;
-        list.appendChild(row);
-      });
     </script>
   </body>
 </html>
