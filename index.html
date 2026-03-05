@@ -236,7 +236,6 @@
                   autocomplete="off"
                 />
                 <datalist id="comp-options"></datalist>
-                <button type="button" class="button" id="add-comp">Add champion</button>
                 <button type="button" class="button button-secondary" id="reset-comp">Reset</button>
               </div>
               <div class="comp-roster" id="comp-roster"></div>
@@ -559,7 +558,8 @@
           card.appendChild(label);
           const remove = document.createElement('button');
           remove.type = 'button';
-          remove.textContent = 'Remove';
+          remove.textContent = '×';
+          remove.setAttribute('aria-label', `Remove ${unit}`);
           remove.addEventListener('click', () => {
             const idx = activeComp.indexOf(unit);
             if (idx >= 0) activeComp.splice(idx, 1);
@@ -605,17 +605,17 @@
         });
       };
 
-      document.getElementById('add-comp').addEventListener('click', () => {
-        const unit = compSearch.value.trim();
-        if (!unit || !UNIT_POOL.includes(unit)) return;
-        activeComp.push(unit);
+      document.getElementById('reset-comp').addEventListener('click', () => {
+        activeComp.length = 0;
         compSearch.value = '';
         renderCompRoster();
         renderTraits();
       });
 
-      document.getElementById('reset-comp').addEventListener('click', () => {
-        activeComp.length = 0;
+      compSearch.addEventListener('change', () => {
+        const unit = compSearch.value.trim();
+        if (!unit || !UNIT_POOL.includes(unit)) return;
+        activeComp.push(unit);
         compSearch.value = '';
         renderCompRoster();
         renderTraits();
