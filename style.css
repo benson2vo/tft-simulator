@@ -250,10 +250,22 @@ textarea {
   border: 1px solid var(--border);
 }
 
+.action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 .stat-grid {
   display: grid;
   gap: 12px;
   margin: 16px 0 24px;
+}
+
+@media (min-width: 720px) {
+  .stat-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 .stat {
@@ -330,6 +342,19 @@ textarea {
   margin-top: 16px;
 }
 
+.advanced-panel {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 12px;
+  display: grid;
+  gap: 12px;
+  background: #0f131b;
+}
+
+.advanced-panel.is-hidden {
+  display: none;
+}
 .snapshot-block {
   gap: 10px;
 }

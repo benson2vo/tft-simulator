@@ -27,40 +27,58 @@
           <div class="card">
             <h2>Input your game state</h2>
             <form class="form">
-            <label>
-              Current stage
-              <input
-                id="stage-input"
-                type="text"
-                list="stage-options"
-                placeholder="Type stage (e.g. 5-2)"
-                autocomplete="off"
-              />
-              <datalist id="stage-options">
-                <option value="2-1"></option>
-                <option value="2-2"></option>
-                <option value="2-3"></option>
-                <option value="2-5"></option>
-                <option value="3-1"></option>
-                <option value="3-2"></option>
-                <option value="3-3"></option>
-                <option value="3-5"></option>
-                <option value="4-1"></option>
-                <option value="4-2"></option>
-                <option value="4-3"></option>
-                <option value="4-5"></option>
-                <option value="5-1"></option>
-                <option value="5-2"></option>
-                <option value="5-3"></option>
-                <option value="5-5"></option>
-                <option value="6-1"></option>
-                <option value="6-2"></option>
-                <option value="6-3"></option>
-                <option value="6-5"></option>
-              </datalist>
-            </label>
+            <div class="field-row">
+              <label>
+                Current stage
+                <input
+                  id="stage-input"
+                  type="text"
+                  list="stage-options"
+                  placeholder="Type stage (e.g. 5-2)"
+                  autocomplete="off"
+                />
+                <datalist id="stage-options">
+                  <option value="2-1"></option>
+                  <option value="2-2"></option>
+                  <option value="2-3"></option>
+                  <option value="2-5"></option>
+                  <option value="3-1"></option>
+                  <option value="3-2"></option>
+                  <option value="3-3"></option>
+                  <option value="3-5"></option>
+                  <option value="4-1"></option>
+                  <option value="4-2"></option>
+                  <option value="4-3"></option>
+                  <option value="4-5"></option>
+                  <option value="5-1"></option>
+                  <option value="5-2"></option>
+                  <option value="5-3"></option>
+                  <option value="5-5"></option>
+                  <option value="6-1"></option>
+                  <option value="6-2"></option>
+                  <option value="6-3"></option>
+                  <option value="6-5"></option>
+                </datalist>
+              </label>
+              <label>
+                Current HP
+                <input id="hp-input" type="number" min="1" max="100" placeholder="e.g. 18" />
+              </label>
+            </div>
 
             <div class="field-row">
+              <label>
+                Gold
+                <input id="gold-input" type="number" min="0" placeholder="e.g. 32" />
+              </label>
+              <label>
+                Streak
+                <select id="streak-select">
+                  <option>None</option>
+                  <option>Win streak (3+)</option>
+                  <option>Loss streak (3+)</option>
+                </select>
+              </label>
               <label>
                 Level
                 <input
@@ -77,16 +95,6 @@
               </label>
             </div>
 
-            <label>
-              Gold
-              <input id="gold-input" type="number" min="0" placeholder="e.g. 32" />
-            </label>
-
-            <label>
-              Current HP
-              <input id="hp-input" type="number" min="1" max="100" placeholder="e.g. 18" />
-            </label>
-
             <div class="field-row">
               <label>
                 Players alive
@@ -98,15 +106,7 @@
               </label>
             </div>
 
-            <label>
-              Streak
-              <select id="streak-select">
-                <option>None</option>
-                <option>Win streak (3+)</option>
-                <option>Mixed (win/loss)</option>
-                <option>Loss streak (3+)</option>
-              </select>
-            </label>
+            
 
             <label>
               Current comp
@@ -151,8 +151,70 @@
               <datalist id="augment-options"></datalist>
             </label>
 
+            <button type="button" class="button button-secondary" id="toggle-advanced">
+              Show advanced scouting
+            </button>
+            <div id="advanced-scouting" class="advanced-panel is-hidden">
+              <p class="subhead">
+                Add enemy snapshots to refine your projection. This MVP stores text
+                only; later this can become structured inputs.
+              </p>
+              <button type="button" class="button button-secondary" id="load-example">
+                Load Cammy 5-5 example
+              </button>
+              <p class="subhead">
+                Example outcome: level 9 (22/68 XP), eliminated at 6-3 in 2nd place.
+              </p>
+              <div class="form" id="enemy-list">
+                <label class="snapshot-block" data-enemy-row>
+                  Enemy snapshot
+                  <div class="snapshot-controls">
+                    <button type="button" class="button button-secondary paste-button" data-target="enemy-1">
+                      Paste snapshot
+                    </button>
+                    <label class="file-button">
+                      Upload
+                      <input type="file" accept="image/*" data-target="enemy-1" />
+                    </label>
+                    <button type="button" class="delete-row">Remove</button>
+                  </div>
+                  <img class="snapshot-preview" id="enemy-1-preview" alt="" />
+                  <textarea
+                    id="enemy-1"
+                    rows="3"
+                    placeholder="Units, levels, champs, estimated gold..."
+                  ></textarea>
+                </label>
+                <label class="snapshot-block" data-enemy-row>
+                  Enemy snapshot
+                  <div class="snapshot-controls">
+                    <button type="button" class="button button-secondary paste-button" data-target="enemy-2">
+                      Paste snapshot
+                    </button>
+                    <label class="file-button">
+                      Upload
+                      <input type="file" accept="image/*" data-target="enemy-2" />
+                    </label>
+                    <button type="button" class="delete-row">Remove</button>
+                  </div>
+                  <img class="snapshot-preview" id="enemy-2-preview" alt="" />
+                  <textarea
+                    id="enemy-2"
+                    rows="3"
+                    placeholder="Units, levels, champs, estimated gold..."
+                  ></textarea>
+                </label>
+              </div>
+              <button type="button" class="button button-secondary" id="add-enemy">
+                Add enemy snapshot
+              </button>
+            </div>
+
+            <div class="action-row">
               <button type="button" class="button" id="run-button">Run simulation</button>
-            </form>
+              <button type="button" class="button button-secondary" id="reset-game">Reset game state</button>
+            </div>
+          </form>
           </div>
         </div>
 
@@ -175,6 +237,7 @@
                 />
                 <datalist id="comp-options"></datalist>
                 <button type="button" class="button" id="add-comp">Add champion</button>
+                <button type="button" class="button button-secondary" id="reset-comp">Reset comp</button>
               </div>
               <div class="comp-roster" id="comp-roster"></div>
             </div>
@@ -237,75 +300,6 @@
         </div>
       </section>
 
-      <section class="card" id="advanced-panel">
-        <h2>Advanced scouting (optional)</h2>
-        <p>
-          Add enemy snapshots to refine your projection. This MVP stores text
-          only; later this can become structured inputs.
-        </p>
-        <button type="button" class="button" id="load-example">
-          Load Cammy 5-5 example
-        </button>
-        <p class="subhead">
-          Example outcome: level 9 (22/68 XP), eliminated at 6-3 in 2nd place.
-        </p>
-        <div class="form">
-          <label class="snapshot-block">
-            Enemy 1 snapshot
-            <div class="snapshot-controls">
-              <button type="button" class="button button-secondary paste-button" data-target="enemy-1">
-                Paste snapshot
-              </button>
-              <label class="file-button">
-                Upload
-                <input type="file" accept="image/*" data-target="enemy-1" />
-              </label>
-            </div>
-            <img class="snapshot-preview" id="enemy-1-preview" alt="" />
-            <textarea
-              id="enemy-1"
-              rows="3"
-              placeholder="Units, levels, champs, estimated gold..."
-            ></textarea>
-          </label>
-          <label class="snapshot-block">
-            Enemy 2 snapshot
-            <div class="snapshot-controls">
-              <button type="button" class="button button-secondary paste-button" data-target="enemy-2">
-                Paste snapshot
-              </button>
-              <label class="file-button">
-                Upload
-                <input type="file" accept="image/*" data-target="enemy-2" />
-              </label>
-            </div>
-            <img class="snapshot-preview" id="enemy-2-preview" alt="" />
-            <textarea
-              id="enemy-2"
-              rows="3"
-              placeholder="Units, levels, champs, estimated gold..."
-            ></textarea>
-          </label>
-          <label class="snapshot-block">
-            Enemy 3 snapshot
-            <div class="snapshot-controls">
-              <button type="button" class="button button-secondary paste-button" data-target="enemy-3">
-                Paste snapshot
-              </button>
-              <label class="file-button">
-                Upload
-                <input type="file" accept="image/*" data-target="enemy-3" />
-              </label>
-            </div>
-            <img class="snapshot-preview" id="enemy-3-preview" alt="" />
-            <textarea
-              id="enemy-3"
-              rows="3"
-              placeholder="Units, levels, champs, estimated gold..."
-            ></textarea>
-          </label>
-        </div>
-      </section>
 
       <section class="card">
         <h2>How it works (MVP)</h2>
@@ -519,6 +513,16 @@
       updateItemOptions('');
       updateUnitOptions('');
 
+      const advancedPanel = document.getElementById('advanced-scouting');
+      const toggleAdvanced = document.getElementById('toggle-advanced');
+
+      toggleAdvanced.addEventListener('click', () => {
+        const isHidden = advancedPanel.classList.toggle('is-hidden');
+        toggleAdvanced.textContent = isHidden
+          ? 'Show advanced scouting'
+          : 'Hide advanced scouting';
+      });
+
       const compOptions = document.getElementById('comp-options');
       const compSearch = document.getElementById('comp-search');
       const compRoster = document.getElementById('comp-roster');
@@ -610,11 +614,54 @@
         renderTraits();
       });
 
+      document.getElementById('reset-comp').addEventListener('click', () => {
+        activeComp.length = 0;
+        compSearch.value = '';
+        renderCompRoster();
+        renderTraits();
+      });
+
       compSearch.addEventListener('input', (event) => {
         updateCompOptions(event.target.value);
       });
 
       updateCompOptions('');
+
+      document.getElementById('reset-game').addEventListener('click', () => {
+        document.getElementById('stage-input').value = '';
+        document.getElementById('gold-input').value = '';
+        document.getElementById('hp-input').value = '';
+        document.getElementById('streak-select').value = 'None';
+        document.getElementById('level-input').value = '';
+        document.getElementById('xp-input').value = '';
+        document.getElementById('alive-input').value = '';
+        document.getElementById('placement-input').value = '';
+        document.getElementById('comp-input').value = '';
+        document.getElementById('augment-input-1').value = '';
+        document.getElementById('augment-input-2').value = '';
+        document.getElementById('augment-input-3').value = '';
+
+        document.querySelectorAll('.unit-items-row').forEach((row) => row.remove());
+        const unitList = document.getElementById('unit-items-list');
+        unitList.appendChild(createUnitRow());
+        unitList.appendChild(createUnitRow());
+
+        const enemyList = document.getElementById('enemy-list');
+        enemyList.innerHTML = '';
+        enemyList.appendChild(createEnemyRow());
+        enemyList.appendChild(createEnemyRow());
+
+        document.querySelectorAll('.snapshot-preview').forEach((img) => {
+          img.src = '';
+          img.classList.remove('is-visible');
+        });
+
+        top4Odds.textContent = '—';
+        winOdds.textContent = '—';
+        placement.textContent = '—';
+        updateList(nextActions, ['Run the simulation to see recommendations.']);
+        updateList(pitfalls, ['Run the simulation to see warnings.']);
+      });
 
       const createUnitRow = (unitValue = '', items = []) => {
         const row = document.createElement('div');
@@ -752,8 +799,8 @@
           'Cammy comp snapshot: Emperor, Rune Mage, Freljord 3, Shurima 2, Warden 2, Bruiser 2, Disruptor 2, Invoker 2, Piltover 2.';
       });
 
-      const snapshotButtons = document.querySelectorAll('.paste-button');
-      const snapshotInputs = document.querySelectorAll('.file-button input');
+      const snapshotButtons = () => document.querySelectorAll('.paste-button');
+      const snapshotInputs = () => document.querySelectorAll('.file-button input');
       let activeSnapshotTarget = null;
 
       const setPreview = (targetId, file) => {
@@ -764,23 +811,31 @@
         preview.classList.add('is-visible');
       };
 
-      snapshotButtons.forEach((button) => {
-        button.addEventListener('click', () => {
-          activeSnapshotTarget = button.dataset.target;
-          button.textContent = 'Paste now (Ctrl+V)';
-          setTimeout(() => {
-            button.textContent = 'Paste snapshot';
-          }, 3000);
+      const bindSnapshotControls = () => {
+        snapshotButtons().forEach((button) => {
+          if (button.dataset.bound) return;
+          button.dataset.bound = 'true';
+          button.addEventListener('click', () => {
+            activeSnapshotTarget = button.dataset.target;
+            button.textContent = 'Paste now (Ctrl+V)';
+            setTimeout(() => {
+              button.textContent = 'Paste snapshot';
+            }, 3000);
+          });
         });
-      });
 
-      snapshotInputs.forEach((input) => {
-        input.addEventListener('change', (event) => {
-          const file = event.target.files[0];
-          if (!file) return;
-          setPreview(event.target.dataset.target, file);
+        snapshotInputs().forEach((input) => {
+          if (input.dataset.bound) return;
+          input.dataset.bound = 'true';
+          input.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+            setPreview(event.target.dataset.target, file);
+          });
         });
-      });
+      };
+
+      bindSnapshotControls();
 
       document.addEventListener('paste', (event) => {
         if (!activeSnapshotTarget) return;
@@ -793,6 +848,48 @@
             break;
           }
         }
+      });
+
+      const enemyList = document.getElementById('enemy-list');
+      const addEnemyButton = document.getElementById('add-enemy');
+      let enemyCount = 2;
+
+      const createEnemyRow = () => {
+        enemyCount += 1;
+        const id = `enemy-${enemyCount}`;
+        const wrapper = document.createElement('label');
+        wrapper.className = 'snapshot-block';
+        wrapper.setAttribute('data-enemy-row', '');
+        wrapper.innerHTML = `
+          Enemy snapshot
+          <div class="snapshot-controls">
+            <button type="button" class="button button-secondary paste-button" data-target="${id}">
+              Paste snapshot
+            </button>
+            <label class="file-button">
+              Upload
+              <input type="file" accept="image/*" data-target="${id}" />
+            </label>
+            <button type="button" class="delete-row">Remove</button>
+          </div>
+          <img class="snapshot-preview" id="${id}-preview" alt="" />
+          <textarea id="${id}" rows="3" placeholder="Units, levels, champs, estimated gold..."></textarea>
+        `;
+        return wrapper;
+      };
+
+      enemyList.addEventListener('click', (event) => {
+        if (event.target.classList.contains('delete-row')) {
+          const row = event.target.closest('[data-enemy-row]');
+          if (!row) return;
+          row.remove();
+        }
+      });
+
+      addEnemyButton.addEventListener('click', () => {
+        const row = createEnemyRow();
+        enemyList.appendChild(row);
+        bindSnapshotControls();
       });
 
     </script>
